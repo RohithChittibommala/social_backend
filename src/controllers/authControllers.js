@@ -1,19 +1,24 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const { Jwt_Secret } = require("../../variables.js");
-
+const { validationResult } = require("express-validator");
 module.exports.signUp = async (req, res) => {
   const { name, email, password } = req.body;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
     const userExist = await User.findOne({ email });
     if (userExist)
-      return res.status(400).send({ error: "user already exists" });
+      return res
+        .status(400)
+        .json({ userExist: "user with email already exists please login" });
     const user = new User({ name, email, password });
     await user.save();
     res.json(user);
-  } catch (error) {
-    console.log(err.message || err);
-    res.status(400).json({ error });
+  } catch (err) {
+    res.status(400).json({ err });
   }
 };
 module.exports.logIn = async (req, res) => {
@@ -21,13 +26,16 @@ module.exports.logIn = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user)
-      return res.status(400).json({ err: "no such user with mail exists" });
+      return res
+        .status(400)
+        .json({ userExist: "no such user with mail exists" });
     const doesPasswordMatch = await user.comparePasswords(password);
-    if (!doesPasswordMatch) return res.json({ error: "invalid password" });
+    if (!doesPasswordMatch) return res.json({ password: "invalid password" });
     const token = jwt.sign({ _id: user._id }, Jwt_Secret);
-    res.json({ token });
+    const { name, _id } = user;
+    res.json({ token, user: { name, email, _id } });
   } catch (err) {
-    console.log(err.message || err);
+    console.error(err);
     res.status(400).json({ err });
   }
 };

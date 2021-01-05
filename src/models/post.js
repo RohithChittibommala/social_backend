@@ -6,14 +6,16 @@ const postSchema = new Schema({
     type: String,
     required: true,
   },
-  body: {
+  description: {
     type: String,
     required: true,
   },
-  photo: {
+  url: {
     type: String,
-    default: "nophoto",
+    default: "",
   },
+  likes: [{ type: ObjectId, ref: "users" }],
+  comments: [{ text: String, postedBy: { type: ObjectId, ref: "users" } }],
   postedBy: {
     type: ObjectId,
     ref: "users",
