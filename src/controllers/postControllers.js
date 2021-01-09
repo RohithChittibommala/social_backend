@@ -4,25 +4,28 @@ const { ObjectId } = Types;
 module.exports.createPost = async (req, res) => {
   const { title, description, url } = req.body;
 
-  if (!title || !description || !url) {
-    return res.status(400).json({ error: "all fields  can't be empty" });
+  if (!title || !description) {
+    return res
+      .status(400)
+      .json({ error: "title and description can't be empty" });
   }
   const post = new Post({
     title,
     description,
+    postedBy: req.user._id,
     url,
-    postedBy: req.user,
   });
+  console.log(post);
   const result = await post.save().catch((err) => console.log(err));
   res.json(result);
 };
 module.exports.getAllPosts = async (req, res) => {
   const posts = await Post.find()
-    .populate("postedBy", "_id name")
+    .populate("postedBy", "_id name imageUrl")
     .catch((err) => console.log(err));
   const myPosts = await Post.find({ postedBy: req.user._id }).populate(
     "postedBy",
-    "_id name"
+    "_id name imageUrl"
   );
   res.json({ myPosts, posts });
 };
@@ -62,6 +65,7 @@ module.exports.handleCommentOnPost = async (req, res) => {
       text: req.body.text,
       postedBy: req.user._id,
     };
+    console.log(comment);
     Post.findByIdAndUpdate(
       new ObjectId(req.body.postID),
       {
@@ -75,5 +79,11 @@ module.exports.handleCommentOnPost = async (req, res) => {
         console.log(err);
         res.json(result);
       });
+  } catch (error) {}
+};
+module.exports.handleDeletePost = async (req, res) => {
+  try {
+    const result = await Post.findByIdAndDelete(req.params.id);
+    res.json(result);
   } catch (error) {}
 };

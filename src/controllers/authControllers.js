@@ -30,10 +30,11 @@ module.exports.logIn = async (req, res) => {
         .status(400)
         .json({ userExist: "no such user with mail exists" });
     const doesPasswordMatch = await user.comparePasswords(password);
-    if (!doesPasswordMatch) return res.json({ password: "invalid password" });
+    if (!doesPasswordMatch)
+      return res.status(400).json({ password: "invalid password" });
     const token = jwt.sign({ _id: user._id }, Jwt_Secret);
-    const { name, _id } = user;
-    res.json({ token, user: { name, email, _id } });
+    user.password = null;
+    res.json({ token, user });
   } catch (err) {
     console.error(err);
     res.status(400).json({ err });
