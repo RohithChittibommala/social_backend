@@ -2,6 +2,9 @@ const express = require("express");
 const { signUp, logIn, protected } = require("../controllers/authControllers");
 const { body, check } = require("express-validator");
 const router = express.Router();
+
+// SG.3iTd_g3oQdaJJ3R6af5oJQ.Gni5KJgcvnLISPMh9xZwfh3aA-nMFhB91dIFM_MGI9U
+
 router.post(
   "/signup",
   body("email").isEmail(),

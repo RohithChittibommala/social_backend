@@ -1,6 +1,5 @@
 const { Schema, model } = require("mongoose");
 const { ObjectId } = Schema.Types;
-
 const postSchema = new Schema({
   title: {
     type: String,
@@ -21,6 +20,6 @@ const postSchema = new Schema({
     ref: "users",
   },
 });
-
+postSchema.set("timestamps", true);
 const Post = model("posts", postSchema);
 module.exports = Post;
