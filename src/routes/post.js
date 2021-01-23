@@ -9,6 +9,7 @@ const {
   handleCommentOnPost,
   handleDeletePost,
 } = require("../controllers/postControllers");
+
 const { verifyToken } = require("../middleware/requireLogin");
 
 router.post("/createpost", verifyToken, createPost);

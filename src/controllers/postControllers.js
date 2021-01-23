@@ -2,13 +2,12 @@ const Post = require("../models/post");
 const { Types } = require("mongoose");
 const { ObjectId } = Types;
 module.exports.createPost = async (req, res) => {
-  const { title, description, url } = req.body;
-
-  if (!title || !description) {
+  if (!req.body.title && !req.body.description) {
     return res
       .status(400)
       .json({ error: "title and description can't be empty" });
   }
+  const { title, description, url } = req.body;
   const post = new Post({
     title,
     description,
@@ -22,6 +21,7 @@ module.exports.createPost = async (req, res) => {
 module.exports.getAllPosts = async (req, res) => {
   const posts = await Post.find()
     .populate("postedBy", "_id name imageUrl")
+    .populate("comments.postedBy", "_id name")
     .catch((err) => console.log(err));
   const myPosts = await Post.find({ postedBy: req.user._id }).populate(
     "postedBy",

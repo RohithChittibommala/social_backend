@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
 const { Schema, model } = mongoose;
+const bcrypt = require("bcrypt");
 const defaultImageUrl = `https://images.unsplash.com/photo-1571066470962-f10fcf2fdf9e?ixid=MXwxMjA3fDB8MHxzZWFyY2h8NXx8ZG9nfGVufDB8MnwwfA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60`;
 const userSchema = new Schema({
   name: { type: String, minlength: 3, required: true, trim: true },
@@ -12,6 +12,7 @@ const userSchema = new Schema({
     lowercase: true,
   },
   password: { type: String, min: 4, required: true },
+  isVerified: { type: Boolean, default: false },
   imageUrl: { type: String, required: false, default: defaultImageUrl },
   followers: [{ type: Schema.Types.ObjectId, ref: "users" }],
   following: [{ type: Schema.Types.ObjectId, ref: "users" }],
