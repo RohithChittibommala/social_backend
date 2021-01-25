@@ -6,7 +6,11 @@ const jwt = require("jsonwebtoken");
 const { Jwt_Secret, api_key } = require("../../variables.js");
 const { validationResult } = require("express-validator");
 const Token = require("../models/token");
-
+const {
+  verifyEmailTemplate,
+  forgotPasswordTemplate,
+  accountPasswordChanged,
+} = require("../utils/emialTemplates");
 const transporter = nodemailer.createTransport(
   sendGridTransport({
     auth: { api_key },
@@ -27,22 +31,19 @@ module.exports.signUp = async (req, res) => {
         .json({ userExist: "user with email already exists please login" });
     const user = new User({ name, email, password });
     await user.save();
-    const userToken = crypto.randomBytes(124).toString("hex");
+    const userToken = crypto.randomBytes(24).toString("hex");
     const token = new Token({ email, token: userToken });
     await token.save();
-    await transporter.sendMail({
-      to: email,
-      from: "company.social.network.org@gmail.com",
-      subject: "Verify your email",
-      html: ` <p>Click on the following link to verfy ur accout</p>
-      <a href=http://localhost:4000/conformation/${userToken}>click here</a>`,
-    });
+    await transporter.sendMail(
+      verifyEmailTemplate(userToken, user.email, user.name)
+    );
     res.json(user);
   } catch (err) {
     res.status(400).json({ err });
     throw new Error(("Error", err));
   }
 };
+
 module.exports.logIn = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -78,22 +79,42 @@ module.exports.confirmEmail = async (req, res) => {
       { new: true }
     );
 
-    res.json(user);
+    res.json("you are verified");
   } catch (error) {
     res.json(error);
   }
 };
-module.exports.forgotPassword = (req, res) => {
-  User.find({ email: req.body.email }, (err, doc) => {
-    if (!doc) return res.json({ msg: "user does exist" });
-    console.log(doc);
-  });
-  res.json({ msg: "user  exist" });
-};
 
-const sendMailToUser = async (email, token) => {
+module.exports.forgotPassword = async (req, res) => {
   try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.json({ msg: "user doesnot exist" });
+    if (!user.isVerified)
+      return res.json({
+        msg: "you are not a verified user ,please verify your email",
+      });
+    const token = crypto.randomBytes(24).toString("hex");
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000;
+    await user.save();
+    res.json({ msg: "please follow the instructions send to your mail id" });
+    await transporter.sendMail(forgotPasswordTemplate(token, user.email));
   } catch (error) {
     console.log(error);
   }
+};
+
+module.exports.resetPassword = async (req, res) => {
+  console.log(req.body);
+  const user = await User.findOne({
+    resetPasswordToken: req.body.token,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+  if (!user) return res.json({ error: "password token is expired" });
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+  res.json({ msg: "success your password is changed" });
+  await transporter.sendMail(accountPasswordChanged(user.email));
 };

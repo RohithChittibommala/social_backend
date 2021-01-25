@@ -4,6 +4,7 @@ const {
   logIn,
   confirmEmail,
   forgotPassword,
+  resetPassword,
 } = require("../controllers/authControllers");
 const { body, check } = require("express-validator");
 const router = express.Router();
@@ -25,5 +26,6 @@ router.post(
 router.post("/login", logIn);
 router.get("/conformation/:token", confirmEmail);
 router.post("/forgot", forgotPassword);
+router.post("/reset/", resetPassword);
 
 module.exports = router;

@@ -16,6 +16,8 @@ const userSchema = new Schema({
   imageUrl: { type: String, required: false, default: defaultImageUrl },
   followers: [{ type: Schema.Types.ObjectId, ref: "users" }],
   following: [{ type: Schema.Types.ObjectId, ref: "users" }],
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
 });
 
 userSchema.set("timestamps", true);
