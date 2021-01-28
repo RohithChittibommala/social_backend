@@ -1,5 +1,3 @@
-const { model } = require("../models/user");
-
 module.exports.verifyEmailTemplate = (userToken, email, name) => ({
   to: email,
   from: "company.social.network.org@gmail.com",

@@ -17,5 +17,6 @@ const postSchema = new Schema({
   },
 });
 postSchema.set("timestamps", true);
+
 const Post = model("posts", postSchema);
 module.exports = Post;

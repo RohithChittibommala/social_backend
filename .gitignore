@@ -1,2 +1,6 @@
 node_modules/
-variable.js
+variables
+**/*.log
+variables.js
+/config
+/.env

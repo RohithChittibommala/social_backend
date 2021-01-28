@@ -5,8 +5,10 @@ const {
   confirmEmail,
   forgotPassword,
   resetPassword,
+  handlePasswordUpdate,
 } = require("../controllers/authControllers");
 const { body, check } = require("express-validator");
+const { route } = require("./user");
 const router = express.Router();
 
 // SG.3iTd_g3oQdaJJ3R6af5oJQ.Gni5KJgcvnLISPMh9xZwfh3aA-nMFhB91dIFM_MGI9U
@@ -27,5 +29,6 @@ router.post("/login", logIn);
 router.get("/conformation/:token", confirmEmail);
 router.post("/forgot", forgotPassword);
 router.post("/reset/", resetPassword);
+router.post("/updatepassword", handlePasswordUpdate);
 
 module.exports = router;
