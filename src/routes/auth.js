@@ -11,8 +11,9 @@ const { body, check } = require("express-validator");
 const { route } = require("./user");
 const router = express.Router();
 
-// SG.3iTd_g3oQdaJJ3R6af5oJQ.Gni5KJgcvnLISPMh9xZwfh3aA-nMFhB91dIFM_MGI9U
-
+router.get("/", (req, res) => {
+  res.send("hello ");
+});
 router.post(
   "/signup",
   body("email").isEmail(),
